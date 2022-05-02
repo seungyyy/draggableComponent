@@ -5,6 +5,10 @@ const globalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+  article,
+  section {
+    display: block;
+  }
   ol, ul, li {
     list-style: none;
   }
