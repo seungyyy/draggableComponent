@@ -1,8 +1,6 @@
 import { url } from 'inspector';
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { isBoxedPrimitive } from 'util/types';
-
 
 export const Draggable = () => {
   const [drag, setDrag] = useState({
@@ -18,6 +16,11 @@ export const Draggable = () => {
     right: 0,
   });
   const containerRef = useRef(null);
+  const [widowWidth, setWindowWidth] = useState(0);
+
+  function ResizeComponent() {
+    setWindowWidth(window.innerWidth);
+  }
 
   useEffect(() => {
     const box = containerRef.current.getBoundingClientRect();
@@ -27,7 +30,9 @@ export const Draggable = () => {
       bottom: box.top + box.height,
       right: box.left + box.width,
     });
-  }, [containerRef]);
+
+    window.addEventListener('resize', ResizeComponent);
+  }, [containerRef, widowWidth]);
 
   const handleDragStart = (e: any) => {
     setDrag({
@@ -39,19 +44,25 @@ export const Draggable = () => {
   };
 
   const handleDragEnd = (e: any) => {
-    if (container.left < e.clientX && e.clientX < container.right && container.top < e.clientY && e.clientY < container.bottom) {
+    if (
+      container.left < e.clientX-75 &&
+      e.clientX+75 < container.right &&
+      container.top < e.clientY-75 &&
+      e.clientY+75 < container.bottom
+    ) {
       setDrag({
         ...drag,
         eventClientX: e.clientX,
         eventClientY: e.clientY,
       });
-      e.target.style.left = `${e.target.offsetLeft + e.clientX - drag.eventClientX
-        }px`;
-      e.target.style.top = `${e.target.offsetTop + e.clientY - drag.eventClientY
-        }px`;
-    } else { 
-      e.preventDefault();
-      e.stopPropagation();
+      e.target.style.left = `${
+        e.target.offsetLeft + e.clientX - drag.eventClientX
+      }px`;
+      e.target.style.top = `${
+        e.target.offsetTop + e.clientY - drag.eventClientY
+      }px`;
+    } else {
+      e.stopPropagation(); 
       e.target.style.left = `${drag.initClientX}px`;
       e.target.style.top = `${drag.initClientY}px`;
     }
@@ -90,7 +101,7 @@ export const Draggable = () => {
       </article>
     </Container>
   );
-};
+};;
 
 const Container = styled.div`
   display: flex;
