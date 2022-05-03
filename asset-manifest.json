@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.js": "/draggableComponent/static/js/main.ab6d0d3d.js",
+    "static/js/787.6ce8a0f7.chunk.js": "/draggableComponent/static/js/787.6ce8a0f7.chunk.js",
+    "index.html": "/draggableComponent/index.html",
+    "main.ab6d0d3d.js.map": "/draggableComponent/static/js/main.ab6d0d3d.js.map",
+    "787.6ce8a0f7.chunk.js.map": "/draggableComponent/static/js/787.6ce8a0f7.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.ab6d0d3d.js"
+  ]
+}
