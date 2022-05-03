@@ -1,38 +1,65 @@
-import React, { useState } from 'react';
+import { url } from 'inspector';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { isBoxedPrimitive } from 'util/types';
 
 
 export const Draggable = () => {
   const [drag, setDrag] = useState({
     eventClientX: 0,
     eventClientY: 0,
+    initClientX: 0,
+    initClientY: 0,
   });
+  const [container, setContainer] = useState({
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  });
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const box = containerRef.current.getBoundingClientRect();
+    setContainer({
+      top: box.top,
+      left: box.left,
+      bottom: box.top + box.height,
+      right: box.left + box.width,
+    });
+  }, [containerRef]);
 
   const handleDragStart = (e: any) => {
-    e.currentTarget.style.opacity = '0.2';
     setDrag({
+      initClientX: e.target.offsetLeft,
+      initClientY: e.target.offsetTop,
       eventClientX: e.clientX,
       eventClientY: e.clientY,
     });
   };
 
   const handleDragEnd = (e: any) => {
-    e.currentTarget.style.opacity = '1';
-    setDrag({
-      eventClientX: e.clientX,
-      eventClientY: e.clientY,
-    });
-    e.target.style.left = `${
-      e.target.offsetLeft + e.clientX - drag.eventClientX
-    }px`;
-    e.target.style.top = `${
-      e.target.offsetTop + e.clientY - drag.eventClientY
-    }px`;
+    if (container.left < e.clientX && e.clientX < container.right && container.top < e.clientY && e.clientY < container.bottom) {
+      setDrag({
+        ...drag,
+        eventClientX: e.clientX,
+        eventClientY: e.clientY,
+      });
+      e.target.style.left = `${e.target.offsetLeft + e.clientX - drag.eventClientX
+        }px`;
+      e.target.style.top = `${e.target.offsetTop + e.clientY - drag.eventClientY
+        }px`;
+    } else { 
+      e.preventDefault();
+      e.stopPropagation();
+      e.target.style.left = `${drag.initClientX}px`;
+      e.target.style.top = `${drag.initClientY}px`;
+    }
   };
 
   const handleDrag = (e: any) => {
-    e.currentTarget.style.opacity = '0.2';
     setDrag({
+      ...drag,
       eventClientX: e.clientX,
       eventClientY: e.clientY,
     });
@@ -43,25 +70,23 @@ export const Draggable = () => {
       e.target.offsetTop + e.clientY - drag.eventClientY
     }px`;
   };
-  const handleDragOver = (e: any) => {
-    console.log('asdsa')
-  }
-
-  //console.log(drag)
 
   return (
     <Container>
-      <article>
+      <article ref={containerRef}>
         <h2>Draggable</h2>
-        <DragContant
+        <Box
           draggable
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
           onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
+          onMouseOver={(e: any) => {
+            e.preventDefault();
+            e.currentTarget.style.cursor = 'grab';
+          }}
         >
-          hee
-        </DragContant>
+          Box
+        </Box>
       </article>
     </Container>
   );
@@ -73,6 +98,7 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
   article {
+    position: relative;
     width: 80%;
     max-width: 600px;
     height: 700px;
@@ -83,9 +109,11 @@ const Container = styled.div`
   }
 `; 
 
-const DragContant = styled.div`
+const Box = styled.div`
   width: 150px;
   height: 150px;
-  position: fixed;
+  position: absolute;
+  top: 150px;
+  left: 30px;
   background-color: #ddd;
 `;
